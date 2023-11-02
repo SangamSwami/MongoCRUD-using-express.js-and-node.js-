@@ -1,5 +1,3 @@
-const express = require("express")
-const app = express();
 
 
 const {MongoClient} = require("mongodb")
@@ -7,30 +5,112 @@ const URL = "mongodb://127.0.0.1:27017";
 
 const client = new MongoClient(URL);
 
-port = 5100;
+///////////////////////////////////////////////////////////
+//
+//getConnection
+//Used to connect with MongoDBServer -> Database -> Collection
+//
+///////////////////////////////////////////////////////////
 
-app.listen(port,StartServer);
-
-function StartServer()
-{
-    console.log("Marvellous server started successfully...");
-}
-
-
-app.get("/",LiveServer);
-function LiveServer(req,res)
-{
-    res.send("Marvellous Server is live now...");
-}
 
 async function getConnection()
 {
     let result = await client.connect();
     let db = result.db("Marvellous");
-    let collection = db.collection("Batches");
-    let res = await collection.find({}).toArray();
-    console.log(res);
+    return db.collection("Batches");
+  
+
 }
 
 
-getConnection();
+///////////////////////////////////////////////////////////
+//
+//readData
+//Used to connect with MongoDBServer -> Database -> Collection
+//
+///////////////////////////////////////////////////////////
+
+async function readData()
+{
+    let data = await getConnection();
+    data = await data.find().toArray();
+    console.log("Data from Marvellous Database is : ");
+    console.log(data);
+}
+
+
+///////////////////////////////////////////////////////////
+//
+//DeleteData
+//Used to delete the data from database
+//
+///////////////////////////////////////////////////////////
+
+async function deleteData()
+{
+    let data = await getConnection();
+    let result = await data.deleteOne({"name" : "Sangam"});
+    if(result.acknowledged)
+    {
+        console.log("Delete operation performed successfully");
+    }
+}
+
+///////////////////////////////////////////////////////////
+//
+//insertData
+//Used to insert the data from database
+//
+///////////////////////////////////////////////////////////
+
+async function insertData()
+{
+    let data = await getConnection();
+    let result = await data.insertOne({"Batch" : "PPA","Fees" : 18500});
+
+    if(result.acknowledged)
+    {
+        console.log("Insert operation performed successfully");
+    }
+}
+
+
+///////////////////////////////////////////////////////////
+//
+//updateData
+//Used to update the data from database
+//
+///////////////////////////////////////////////////////////
+
+async function updateData()
+{
+    let data = await getConnection();
+    let result = await data.updateOne({"Batch" : "PPA"}, {$set : {"Fees" : 20000}});
+
+    if(result.acknowledged)
+    {
+        console.log("Update operation performed successfully");
+    }
+}
+
+
+///////////////////////////////////////////////////////////
+//
+//main function
+//it should be entry point function of our application 
+//
+///////////////////////////////////////////////////////////
+
+
+function main()
+{
+    
+    deleteData();
+    //insertData();
+    //updateData();
+    //readData();
+
+}
+
+//starter of the application
+main();
